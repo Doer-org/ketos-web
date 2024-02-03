@@ -2,7 +2,6 @@ import { Hono, HTTPException } from "./deps.ts";
 
 export const app = new Hono();
 export const kv = await Deno.openKv();
-export type TCode = { id: string; code: Blob };
 
 app.get("/health", (c) => c.json({ status: "ok" }));
 
