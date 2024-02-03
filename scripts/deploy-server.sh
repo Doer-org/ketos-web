@@ -10,6 +10,10 @@ if [ -z "$CF_ACCOUNT_ID" ] || [ -z "$CF_API_TOKEN" ] || [ -z "$CF_CUSTOM_DOMAIN"
   exit 1
 fi
 
+ls_result=$(ls)
+echo "ls result"
+echo "$ls_result"
+
 DENO_VERSION="v1.40.3"
 DENOFLARE_VERSION="v0.6.0"
 curl -fsSL https://deno.land/x/install/install.sh | DENO_INSTALL=./deno-$DENO_VERSION sh -s $DENO_VERSION
