@@ -1,3 +1,15 @@
+name: server (CI)/CD
+
+on:
+  push:
+    branches: [main]
+
+env:
+  CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+  CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+  CF_CUSTOM_DOMAIN: ketos.doer-app.com
+  CF_SCRIPT_NAME: ketos-worker
+
 jobs:
   example-job:
     runs-on: ubuntu-latest
@@ -5,7 +17,7 @@ jobs:
       run:
         working-directory: ./scripts
     steps:
-      - name: Check out the repository to the runner
+      - name: Check out
         uses: actions/checkout@v4
-      - name: Run a script
+      - name: Run a deploy script
         run: ./deploy-server.sh
