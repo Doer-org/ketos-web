@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# abort on any non-zero exit code
 set -e
 
 ls
