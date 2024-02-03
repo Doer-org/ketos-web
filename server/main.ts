@@ -1,25 +1,23 @@
 import { Hono, HTTPException } from "./deps.ts";
 
-const app = new Hono();
-const kv = await Deno.openKv();
-
-type TCode = { id: string; code: Blob };
+export const app = new Hono();
+export const kv = await Deno.openKv();
+export type TCode = { id: string; code: Blob };
 
 app.get("/health", (c) => c.json({ status: "ok" }));
 
 app.get("/:id", async (c) => {
   const id = c.req.param("id");
-  const data = (await kv.get(["codes", id])).value as TCode;
-  console.log("data", data);
-  return c.json({ data });
+  const { value } = await kv.get(["codes", id]);
+  c.res.headers.set("content-type", "application/x-tar");
+  return c.body(value as ArrayBuffer);
 });
 
 app.post("/", async (c) => {
-  const input: TCode = await c.req.json();
+  const input = await c.req.arrayBuffer();
   try {
     const uuid = crypto.randomUUID();
-    await kv.set(["codes", uuid], JSON.stringify(input));
-    console.log("input", input);
+    await kv.set(["codes", uuid], input);
     return c.json({ id: uuid });
   } catch (_) {
     new HTTPException(500, { message: "Error saving data" });
