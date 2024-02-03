@@ -29,6 +29,7 @@ Deno.test("[GET] /:id", async (t) => {
   const { tgz: other_tgz } = await postTgzFile("./testdata/outputs2.tgz");
 
   const apiResult = await app.request(`http://localhost:8000/${data.id}`);
+  const notFounrResult = await app.request("http://localhost:8000/1");
   const bufferRes = await apiResult.arrayBuffer();
 
   await t.step(
@@ -44,6 +45,11 @@ Deno.test("[GET] /:id", async (t) => {
   await t.step(
     "別のデータを取得した場合は異なる",
     () => expect(atos(bufferRes)).not.toBe(atos(other_tgz)),
+  );
+
+  await t.step(
+    "存在しないデータを取得した場合は404",
+    () => expect(notFounrResult.status).toBe(404),
   );
 });
 
