@@ -1,4 +1,3 @@
-import { reset } from "https://deno.land/std@0.214.0/fmt/colors.ts";
 import { Hono, HTTPException } from "./deps.ts";
 
 export const app = new Hono();
