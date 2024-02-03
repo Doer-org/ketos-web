@@ -1,19 +1,13 @@
-import { D1Database, Hono } from "./deps.ts";
+import { Hono } from "./deps.ts";
 
-type Bindings = { DB: D1Database };
-
-const app = new Hono<{ Bindings: Bindings }>();
+const app = new Hono();
 
 app.fire();
 
 app.get("/health", (c) => c.json({ status: "ok" }));
 
-app.get("/:id", async (c) => {
+app.get("/:id", (c) => {
   const id = c.req.param("id");
-  const { results } = await c.env.DB.prepare(
-    "SELECT * FROM codes WHERE id = ?",
-  ).bind(id).all();
-  console.log(results);
   return c.json({ id });
 });
 
