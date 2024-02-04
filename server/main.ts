@@ -14,11 +14,11 @@ app.get("/:id", async (c) => {
 });
 
 app.post("/", async (c) => {
-  const input = await c.req.arrayBuffer();
-
+  const input = await c.req.parseBody();
+  const file = input.upload_file as File;
   const uuid = crypto.randomUUID();
   try {
-    await kv.set(["codes", uuid], input);
+    await kv.set(["codes", uuid], await file.arrayBuffer());
   } catch (_) {
     throw new HTTPException(500, { message: "Error saving data" });
   }
