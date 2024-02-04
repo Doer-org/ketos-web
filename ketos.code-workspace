@@ -1,3 +1,4 @@
 {
-  "folders": [{ "path": "./server" }, { "path": "./client" }, { "path": "." }]
+  "folders": [{ "path": "./server" }, { "path": "./client" }, { "path": "." }],
+  "settings": { "deno.enable": false }
 }
