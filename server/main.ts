@@ -1,8 +1,4 @@
-import os from "https://deno.land/x/dos@v0.1.0/mod.ts";
-import { Tar, unZipFromFile } from "./deps.ts";
-import { compress, fs } from "./deps.ts";
 import { Hono, HTTPException } from "./deps.ts";
-import { Buffer } from "https://deno.land/std@0.214.0/io/buffer.ts";
 
 export const app = new Hono();
 export const kv = await Deno.openKv();
@@ -48,8 +44,6 @@ app.get("/file_info/:id", async (c) => {
   const id = c.req.param("id");
   const { value } = await kv.get(["codes", id]);
   Deno.writeFileSync("./temp.tgz", new Uint8Array(value as ArrayBuffer));
-  const unziped = await unZipFromFile("./temp.tgz");
-  //
 
   return c.json({ message: "Hello, World!" });
 });
