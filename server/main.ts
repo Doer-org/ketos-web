@@ -1,6 +1,7 @@
 import { getFile, uploadFile } from "./cloudStorage.ts";
 import { Hono, HTTPException } from "./deps.ts";
 import { toHashStr } from "./util.ts";
+import { CONSTANT } from "./constants.ts";
 
 export const app = new Hono();
 export const kv = await Deno.openKv();
@@ -35,17 +36,20 @@ app.get("/file_info/:id", async (c) => {
 app.post("/", async (c) => {
   const { port } = c.req.query();
   if (!port) throw new HTTPException(400, { message: "host is required" });
-  const input = await c.req.parseBody();
-  const file = input.upload_file as File;
+
+  const file = (await c.req.parseBody()).upload_file as File;
+  if (file.size > CONSTANT.MAX_BYTE) {
+    throw new HTTPException(413, { message: "file is too large" });
+  }
+
   const id = crypto.randomUUID();
   const fileId = await toHashStr(crypto.randomUUID());
   try {
     await uploadFile(fileId, file);
     await kv.set(["fileInfo", id], { id, fileId, port });
   } catch (e) {
-    throw new Error("失敗:" + e);
+    throw new HTTPException(500, { message: "file not saved:" + e });
   }
-
   return c.json({ id, fileId, port });
 });
 
