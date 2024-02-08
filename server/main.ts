@@ -26,9 +26,9 @@ app.get("/:id", async (c) => {
 });
 
 // サーバー側で解凍してなんとかできないか模索する
-app.get("/file_info/:id", async (c) => {
-  const id = c.req.param("id");
-  const { value: fileInfo } = await kv.get(["fileInfo", id]);
+app.get("/file_info/:id", (c) => {
+  // const id = c.req.param("id");
+  // const { value: fileInfo } = await kv.get(["fileInfo", id]);
 
   return c.json({ message: "Hello, World!" });
 });
@@ -45,6 +45,7 @@ app.post("/", async (c) => {
   const id = crypto.randomUUID();
   const fileId = await toHashStr(crypto.randomUUID());
   try {
+    // 40MBくらいで15~25秒くらいかかる
     await uploadFile(fileId, file);
     await kv.set(["fileInfo", id], { id, fileId, port });
   } catch (e) {
