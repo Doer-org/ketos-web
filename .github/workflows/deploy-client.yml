@@ -1,4 +1,4 @@
-name: Cloudflare Pages
+name: Deploy ketos client
 
 on:
   push:
