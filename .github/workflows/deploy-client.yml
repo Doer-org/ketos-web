@@ -25,16 +25,12 @@ jobs:
         uses: pnpm/action-setup@v2.2.2
         with:
           version: 8.8.0
+
+      - name: Install pnpm
       - run: pnpm i --frozen-lockfile
 
-      - name: Build client
-        run: pnpm run build
-
       - name: deploy client to cloudflare pages
-        uses: cloudflare/pages-action@1
-        with:
-          accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          projectName: ketos-client
-          directory: ./client/public
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+        run: pnpm run pages:deploy
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
