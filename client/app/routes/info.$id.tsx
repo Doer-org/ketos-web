@@ -6,10 +6,7 @@ import { Wrapper } from '~/components/Wrapper';
 export const meta: MetaFunction = () => {
   return [
     { title: 'info | Ketos' },
-    {
-      name: 'description',
-      content: `ketos info`,
-    },
+    { name: 'description', content: `ketos info` },
   ];
 };
 
