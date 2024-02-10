@@ -27,6 +27,15 @@ app.get("/:id", async (c) => {
   return c.body(file);
 });
 
+app.get("/info/:id", async (c) => {
+  const id = c.req.param("id");
+  const { value: fileInfo } = await kv.get(["fileInfo", id]) as Deno.KvEntry<
+    FileInfo
+  >;
+  if (!fileInfo) throw new HTTPException(404, { message: "file not found" });
+  return c.json({ id: fileInfo.id, port: fileInfo.port });
+});
+
 // サーバー側で解凍してなんとかできないか模索する
 app.get("/file_info/:id", (c) => {
   // const id = c.req.param("id");
