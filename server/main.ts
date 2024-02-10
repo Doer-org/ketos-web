@@ -1,7 +1,7 @@
-import { getFile, uploadFile } from "./cloudStorage.ts";
 import { Hono, HTTPException } from "./deps.ts";
 import { toHashStr } from "./util.ts";
 import { CONSTANT } from "./constants.ts";
+import { getFileByS3, uploadFileByS3 } from "./s3.ts";
 
 export const app = new Hono();
 export const kv = await Deno.openKv();
@@ -12,15 +12,17 @@ type FileInfo = {
   port: string;
 };
 
-app.get("/health", (c) => c.json({ status: "ok" }));
+app.get("/health", (c) => {
+  return c.json({ message: "Hello, World!" });
+});
 
 app.get("/:id", async (c) => {
   const id = c.req.param("id");
   const { value: fileInfo } = await kv.get(["fileInfo", id]) as Deno.KvEntry<
     FileInfo
   >;
-  if (!fileInfo) throw new HTTPException(404, { message: "file is not found" });
-  const file = await getFile(fileInfo.fileId);
+  if (!fileInfo) throw new HTTPException(404, { message: "file not found" });
+  const file = await getFileByS3(fileInfo.fileId);
 
   return c.body(file);
 });
@@ -39,19 +41,19 @@ app.post("/", async (c) => {
 
   const file = (await c.req.parseBody()).upload_file as File;
   if (file.size > CONSTANT.MAX_BYTE) {
-    throw new HTTPException(413, { message: "file is too large" });
+    throw new HTTPException(413, { message: "it's too large file" });
   }
 
   const id = crypto.randomUUID();
   const fileId = await toHashStr(crypto.randomUUID());
   try {
     // 40MBくらいで15~25秒くらいかかる
-    await uploadFile(fileId, file);
+    await uploadFileByS3(fileId, file);
     await kv.set(["fileInfo", id], { id, fileId, port });
   } catch (e) {
     throw new HTTPException(500, { message: "file not saved:" + e });
   }
-  return c.json({ id, fileId, port });
+  return c.json({ id, port });
 });
 
 Deno.serve(app.fetch);
