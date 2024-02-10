@@ -8,3 +8,4 @@ export {
   Tar,
   type TarInfo,
 } from "https://deno.land/std@0.214.0/archive/tar.ts";
+export { GetObjectCommand, PutObjectCommand, S3 } from "npm:@aws-sdk/client-s3";
