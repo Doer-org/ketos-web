@@ -27,7 +27,7 @@ jobs:
           version: 8.8.0
 
       - name: Install pnpm
-      - run: pnpm i --frozen-lockfile
+        run: pnpm i --frozen-lockfile
 
       - name: deploy client to cloudflare pages
         run: pnpm run pages:deploy
