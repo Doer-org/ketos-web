@@ -1,4 +1,4 @@
-import { Hono, HTTPException, tar } from "./deps.ts";
+import { Hono, HTTPException } from "./deps.ts";
 import { toHashStr } from "./util.ts";
 import { CONSTANT } from "./constants.ts";
 import { getFileByS3, uploadFileByS3 } from "./s3.ts";
@@ -6,43 +6,32 @@ import { getFileByS3, uploadFileByS3 } from "./s3.ts";
 export const app = new Hono();
 export const kv = await Deno.openKv();
 
-type FileInfo = {
-  id: string;
-  fileId: string;
-  port: string;
-};
+type FileInfo = { id: string; fileId: string; port: string; createdAt: string };
 
-app.get("/health", (c) => {
-  return c.json({ message: "Hello, World!" });
-});
+app.get("/health", (c) => c.json({ message: "Hello, World!" }));
 
 app.get("/:id", async (c) => {
   const id = c.req.param("id");
-  const { value: fileInfo } = await kv.get(["fileInfo", id]) as Deno.KvEntry<
-    FileInfo
-  >;
+  const fileInfo = await kv.get(["fileInfo", id]) as Deno.KvEntry<FileInfo>;
   if (!fileInfo) throw new HTTPException(404, { message: "file not found" });
-  const file = await getFileByS3(fileInfo.fileId);
-
+  const file = await getFileByS3(fileInfo.value.fileId);
   return c.body(file);
 });
 
 app.get("/info/:id", async (c) => {
   const id = c.req.param("id");
-  const { value: fileInfo } = await kv.get(["fileInfo", id]) as Deno.KvEntry<
-    FileInfo
-  >;
+  const fileInfo = await kv.get(["fileInfo", id]) as Deno.KvEntry<FileInfo>;
   if (!fileInfo) throw new HTTPException(404, { message: "file not found" });
-  return c.json({ id: fileInfo.id, port: fileInfo.port });
+  return c.json({ id: fileInfo.value.id, port: fileInfo.value.port });
 });
 
-// サーバー側で解凍してなんとかできないか模索する
 app.get("/file_info/:id", async (c) => {
-  // const id = c.req.param("id");
-  // const { value: fileInfo } = await kv.get(["fileInfo", id]);
-  const openres = tar.x({ path: "/file/hoge.tgz", cwd: "/path/output" });
-  console.log("res", openres);
-  return c.json({ message: "Hello, World!" });
+  const id = c.req.param("id");
+  const fileInfo = await kv.get(["fileInfo", id]) as Deno.KvEntry<FileInfo>;
+  const { fileId, ...canShowFileInfo } = fileInfo.value;
+  if (!fileInfo) throw new HTTPException(404, { message: "file not found" });
+  const file = await getFileByS3(fileId);
+  return c.json({ ...canShowFileInfo, size: file.byteLength });
 });
 
 app.post("/", async (c) => {
@@ -51,15 +40,19 @@ app.post("/", async (c) => {
 
   const file = (await c.req.parseBody()).upload_file as File;
   if (file.size > CONSTANT.MAX_BYTE) {
-    throw new HTTPException(413, { message: "it's too large file" });
+    throw new HTTPException(413, { message: "too large file" });
   }
 
   const id = crypto.randomUUID();
   const fileId = await toHashStr(crypto.randomUUID());
   try {
-    // 40MBくらいで15~25秒くらいかかる
     await uploadFileByS3(fileId, file);
-    await kv.set(["fileInfo", id], { id, fileId, port });
+    await kv.set(["fileInfo", id], {
+      id,
+      fileId,
+      port,
+      createdAt: new Date().toISOString(),
+    });
   } catch (e) {
     throw new HTTPException(500, { message: "file not saved:" + e });
   }
