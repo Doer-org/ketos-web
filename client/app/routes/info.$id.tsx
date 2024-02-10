@@ -5,10 +5,10 @@ import { Wrapper } from '~/components/Wrapper';
 
 export const meta: MetaFunction = () => {
   return [
-    { title: 'Ketos' },
+    { title: 'info | Ketos' },
     {
       name: 'description',
-      content: `CLI tool to reproduce someone else's environment`,
+      content: `ketos info`,
     },
   ];
 };

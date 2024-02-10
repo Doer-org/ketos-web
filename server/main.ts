@@ -1,4 +1,4 @@
-import { Hono, HTTPException } from "./deps.ts";
+import { Hono, HTTPException, tar } from "./deps.ts";
 import { toHashStr } from "./util.ts";
 import { CONSTANT } from "./constants.ts";
 import { getFileByS3, uploadFileByS3 } from "./s3.ts";
@@ -37,10 +37,11 @@ app.get("/info/:id", async (c) => {
 });
 
 // サーバー側で解凍してなんとかできないか模索する
-app.get("/file_info/:id", (c) => {
+app.get("/file_info/:id", async (c) => {
   // const id = c.req.param("id");
   // const { value: fileInfo } = await kv.get(["fileInfo", id]);
-
+  const openres = tar.x({ path: "/file/hoge.tgz", cwd: "/path/output" });
+  console.log("res", openres);
   return c.json({ message: "Hello, World!" });
 });
 
