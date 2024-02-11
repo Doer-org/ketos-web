@@ -17,6 +17,9 @@ dependencies:
   '@remix-run/react':
     specifier: ^2.5.1
     version: 2.6.0(react-dom@18.2.0)(react@18.2.0)(typescript@5.3.3)
+  cdate:
+    specifier: ^0.0.7
+    version: 0.0.7
   isbot:
     specifier: ^4.1.0
     version: 4.4.0
@@ -2342,6 +2345,10 @@ packages:
   /ccount@2.0.1:
     resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
     dev: true
+
+  /cdate@0.0.7:
+    resolution: {integrity: sha512-11EnUjVX6hwL0FcDNE2F0wh+0KnQieTfPUdPHNdQHbrvFdEbqfRULkA8nMcfT2tXCGw/ABRdYLqQ0SmbeWawTA==}
+    dev: false
 
   /chalk@2.4.2:
     resolution: {integrity: sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ==}
