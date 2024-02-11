@@ -2,11 +2,31 @@ import { Hono, HTTPException } from "./deps.ts";
 import { toHashStr } from "./util.ts";
 import { CONSTANT } from "./constants.ts";
 import { getFileByS3, uploadFileByS3 } from "./s3.ts";
+// import { enqueue } from "./queue.ts";
+import { deleteFileByS3 } from "./s3.ts";
 
 export const app = new Hono();
 export const kv = await Deno.openKv();
 
-type FileInfo = { id: string; fileId: string; port: string; createdAt: string };
+export type FileInfo = {
+  id: string;
+  fileId: string;
+  port: string;
+  createdAt: string;
+};
+
+kv.listenQueue(async (queue: unknown) => {
+  const { data } = queue as TQueue;
+  const fileInfo = data as FileInfo;
+  await kv.delete(["fileInfo", fileInfo.id]);
+  await deleteFileByS3(fileInfo.fileId);
+});
+
+type TQueue = { key: string; data: unknown };
+
+export const enqueue = async <T>(key: string, data: T, delay: number) => {
+  await kv.enqueue({ key, data }, { delay });
+};
 
 app.get("/health", (c) => c.json({ message: "Hello, World!" }));
 
@@ -47,12 +67,15 @@ app.post("/", async (c) => {
   const fileId = await toHashStr(crypto.randomUUID());
   try {
     await uploadFileByS3(fileId, file);
-    await kv.set(["fileInfo", id], {
+    const fileInfo: FileInfo = {
       id,
       fileId,
       port,
       createdAt: new Date().toISOString(),
-    });
+    };
+    await kv.set(["fileInfo", id], fileInfo);
+    // 3分後に自動で削除する
+    await enqueue("deleteFile", fileInfo, 1000 * 60 * 3);
   } catch (e) {
     throw new HTTPException(500, { message: "file not saved:" + e });
   }
