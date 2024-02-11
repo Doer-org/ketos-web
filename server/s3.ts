@@ -1,4 +1,9 @@
-import { GetObjectCommand, PutObjectCommand, S3 } from "./deps.ts";
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+  S3,
+} from "./deps.ts";
 import { SECRET } from "./secret.ts";
 
 const client = new S3({
@@ -23,5 +28,13 @@ export const uploadFileByS3 = async (id: string, file: File) => {
     Body: await file.arrayBuffer(),
   };
   const command = new PutObjectCommand(input);
+  await client.send(command);
+};
+
+export const deleteFileByS3 = async (id: string) => {
+  const command = new DeleteObjectCommand({
+    Bucket: SECRET.BUCKET_NAME,
+    Key: id,
+  });
   await client.send(command);
 };
