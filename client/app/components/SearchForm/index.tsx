@@ -1,9 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export const SearchForm = () => {
   const [id, setId] = useState<string>('');
+  const ref = useRef<HTMLInputElement>(null);
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setId(e.target.value);
+
+  useEffect(() => {
+    ref.current?.focus();
+    setId(ref.current?.value ?? '');
+  }, []);
 
   return (
     <div className='bg-white md:p-8 p-4 m-3 text-gray-900 rounded-md'>
@@ -15,6 +21,7 @@ export const SearchForm = () => {
           className='p-2 rounded-md border-2 border-gray-900'
           placeholder='published id'
           onChange={onChange}
+          ref={ref}
         />
         <a
           href={'info/' + id}
