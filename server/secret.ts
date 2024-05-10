@@ -4,4 +4,5 @@ export const SECRET = {
   BUCKET_NAME: Deno.env.get("BUCKET_NAME")!,
   ACCESS_KEY: Deno.env.get("ACCESS_KEY")!,
   SECRET_KEY: Deno.env.get("SECRET_KEY")!,
+  MINIO_ENDPOINT: Deno.env.get("MINIO_ENDPOINT")!,
 };

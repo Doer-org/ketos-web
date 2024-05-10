@@ -40,6 +40,7 @@ app.get("/:id", async (c) => {
 
 app.get("/info/:id", async (c) => {
   const id = c.req.param("id");
+  console.log(id);
   const fileInfo = await kv.get(["fileInfo", id]) as Deno.KvEntry<FileInfo>;
   if (!fileInfo) throw new HTTPException(404, { message: "file not found" });
   return c.json({ id: fileInfo.value.id, port: fileInfo.value.port });

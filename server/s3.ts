@@ -8,6 +8,8 @@ import { SECRET } from "./secret.ts";
 
 const client = new S3({
   region: "ap-northeast-1",
+  endpoint: SECRET.MINIO_ENDPOINT || "http://localhost:9000",
+  forcePathStyle: true, // MinIO利用時には必要そう。
   credentials: {
     accessKeyId: SECRET.ACCESS_KEY,
     secretAccessKey: SECRET.SECRET_KEY,
@@ -22,6 +24,8 @@ export const getFileByS3 = async (id: string): Promise<ArrayBuffer> => {
 };
 
 export const uploadFileByS3 = async (id: string, file: File) => {
+  console.log(SECRET.BUCKET_NAME);
+  console.log(SECRET.BUCKET_NAME);
   const input = {
     Bucket: SECRET.BUCKET_NAME,
     Key: id,
